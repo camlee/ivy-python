@@ -1,0 +1,121 @@
+
+* IvyServer.send_direct_message(): new parameter 'stop_on_first' added
+
+* Bohdan Mushkevych has done a lot of work on the source code to clean
+  it up, to correct misspellings, and to make it more "Pythonic"
+  (especially by following pep8 recommendations).
+  Great job, thanks a lot Dan!
+
+v2.2
+----
+
+* It is now possible to stop and restart an IvyServer, without recreating it.
+  This is particularly useful for the std_api, where IvyStart() can be called
+  again after IvyStop().
+  Thanks to Jiri Borovec for reporting the problem.
+
+v2.1
+----
+
+* ivyprobe.py is now declared as a runnable script and installed as such when
+  installing or upgrading ivy-python
+
+* Fixed: an exception raised while connecting to a new agent which has just
+  sent its initial UDP broadcast message was not handled, stopping the agent
+  from listening to broadcast messages and as result, new agents connecting to
+  the bus were ignored after this happened.  This is no longer the case:
+  exceptions occuring while connecting to new clients (e.g. timeout) are
+  logged but ignored, as expected.
+
+* Fixed std_api.IvyInit(): the default values for parameters on_cnx_fct and
+  on_die_cnx were wrong
+
+v2.0
+----
+
+* Signatures of ALL callbacks have been changed: 1st parameter passed to the
+  callbacks is now *always* an IvyClient object, representing the agent
+  whose message/behaviour triggered the callback.
+
+  Example: a callback given to IvyBindMsg() was::
+
+    def on_msg(*regexp_groups)
+
+  must be changed to::
+
+    def on_msg(agent, *regexp_groups)
+
+  Based on an original patch by Olivier Saal who did most of the work, thanks
+  Olivier.
+
+  **IMPORTANT** Please note that this changes breaks backward compatibility:
+                agents coded for ivy-python v1.x must be adapted so that their
+                callbacks accept the new parameter.
+
+
+v1.2
+----
+
+* The official subversion repository is now located at
+  https://svn.tls.cena.fr/svn/ivy/
+  Many thanks to the CENA team, and to Olivier Fourdan in particular,
+  for setting up the global repository for ivy implementations.
+
+* New format of UDP broadcast messages, including the agent's id and name is
+  now correctly handled.
+  (cf. https://sympa.tls.cena.fr/wws/arc/ivy/2006-05/msg00004.html
+   &   https://sympa.tls.cena.fr/wws/arc/ivy/2006-11/msg00010.html).
+
+  Thanks to Olivier Saal for reporting.
+
+* Added examples/ivyprobe.py, a fully-featured ivyprobe in pure-python
+
+* Added: ivy.IvyClient.get_regexps() and std_api.IvyGetApplicationMessages()
+
+* Added: ivy.IvyClient.send_error() and std_api.IvySendError()
+
+* Added the ability to bind a callback for monitoring changes in other agents'
+  subscriptions/bindings 
+
+    stdapi: IvyBindRegexpChange()
+    ivy: IvyServer.bind_regexp_change()
+
+  Callback signature: on_regexp_change(client, event, regexp_id, regexp)
+  where 
+   - 'client' is an IvyClient object,
+   - 'event' is either ivy.ivy.IvyRegexpAdded or IvyRegexpRemoved
+
+* Added the ability to bind a callback for direct messages
+
+    stdapi: IvyBindDirectMsg()
+    ivy:    IvyServer.bind_direct_msg()
+
+  Callback signature: on_direct_msg_callback(client, num_id, msg)
+  (where 'client' is an IvyClient object)
+
+* Fixed: stdapi.IvySendMsg() was not returning the number of peers to which
+  the message was sent
+
+* Fixed: the UDP listening socket did not set the SO_REUSEPORT on systems where
+  this flag is defined (such as: mac os x). On such systems, when more than one
+  ivy-process was launched on the same bus, all processes but one failed with
+  an error stating that the (udp broadcast) port was already in use.
+
+v1.1
+----
+
+* Implementation is now MT-safe
+
+* added support for class D/multicast addresses
+
+* Implemented std_api.IvyUnBindMsg() and related methods in ivy.py
+
+* Fixed: IvyServer.send_msg() and IvyClient.send_msg() do not fail anymore
+  when a client disconnects abruptly (it could fail when send_msg() was called
+  just before the server notices the faulty connecion and unregisters the
+  corresponding agent)
+
+v1.0
+----
+
+First public release

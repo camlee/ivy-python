@@ -1,0 +1,4 @@
+include README CHANGES ChangeLog LICENSE
+
+recursive-include examples *
+recursive-include API *

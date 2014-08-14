@@ -1,0 +1,13 @@
+Ivy: a lightweight software bus
+-------------------------------
+
+Ivy is a lightweight software bus for quick-prototyping protocols. It allows
+applications to broadcast information through text messages, with a
+subscription mechanism based on regular expressions.
+
+
+Supported versions of python are: 2.3 and newer
+
+!!! Warning !!!  Version 2.0 broke backward compatibility!  If you're
+upgrading from ivy-python 1.x, be sure to read the v2.0 compatibility notes in
+ivy/__init__.py (also in: API/index.html)

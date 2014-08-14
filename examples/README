@@ -1,0 +1,19 @@
+The ``pyhello.py`` example was initially directly copied from the archive
+``ivycpy-0.2`` (the Ivy python version built on top of the C library using
+SWIG) available on the official Ivy project's downloads page.
+
+Two differences from the original:
+
+- the initial import statement was::
+
+    from ivycpy import *
+
+  while this version uses::
+
+    from ivy.std_api import *
+
+- ivycpy does not supply to the callbacks the reference to the agent
+  triggering an event; ivy-python v1.x has the same behaviour.
+
+  However, since v2.0, every callback triggered by ivy-python gets an
+``ivy.IvyClient`` as its first parameter.

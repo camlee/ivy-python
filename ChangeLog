@@ -1,0 +1,106 @@
+2008-06-10  Sebastien Bigaret  <Sebastien.Bigaret@telecom-bretagne.eu>
+
+	* ivy/ivy.py (IvyServer.remove_client): added a parameter
+      'trigger_application_callback' controlling whether the dedicated
+      callback methods should be called
+      (UDP_init_and_listen): Fixed: the method should not raise when the
+      connection to a new client fails. Rather, the error is logged but it is
+      ignored --it was not the case, causing an agent to stop listening to UDP
+      messages and as a result, ignoring the new agents connecting to the bus
+      afterwards.
+
+	* ivy/std_api.py (IvyInit): Changed the default values for on_cnx_fct and
+      on_die_fct
+
+2006-11-29  Sebastien Bigaret  <Sebastien.Bigaret@enst-bretagne.fr>
+
+	* ivy/ivy.py (IvyServer.handle_regexp_change)
+	* ivy/std_api.py (IvyBindRegexpChange): Changed the value of
+	parameter 'event' passed to the callback, after Olivier Saal
+	kindly suggested that using protocol constants (ADD_REGEXP,
+	DEL_REGEXP) was not exactly appropriate in this context!
+
+	* ivy/ivy.py (trace): added. New log. level TRACE defined if
+	environment variable IVY_LOG_TRACE is defined
+	
+	(UDP_init_and_listen): now correctly handles the modified UDP
+	broadcast message when it includes an agent's id and name.  The
+	test checking that we're not dealing with a broadcast we sent has
+	been changed: it now checks the announced agent id.
+	
+	(IvyClient): attribute 'is_fully_initialized' suppressed &
+	replaced by attribute 'status' which can have 3 states:
+	NOT_INITIALIZED, INITIALIZATION_IN_PROGRESS and INITIALIZED.
+	(the removed attribute+'agent_name' were previously used for that
+	purpose)
+	
+	(IvyClient.__init__): new parameters agent_id=None,
+	agent_name=None added.
+
+	(IvyServer._get_client): new parameters agent_id &
+	agent_name. Changed behaviour: if agent_id is supplied, the method
+	now checks that a client with the same id already exists; if it
+	does, the method exits by returning None.
+	(IvyServer.agent_id): new attribute: a unique id per agent (used
+	by UDP_init_and_listen(), see above)
+	
+2006-11-24  Sebastien Bigaret  <Sebastien.Bigaret@enst-bretagne.fr>
+
+	* ivy/ivy.py (IvyServer.__init__): fixed: parameter ready_msg was
+	ignored. Thanks to Frédéric Cadier for noticing.
+	
+2006-11-23  Sebastien Bigaret  <sbigaret@users.sourceforge.net>
+
+	* ivy/ivy.py (IvyClient.remove_regexp):
+	(IvyServer.unbind_msg):
+	* ivy/std_api.py (IvyUnBindMsg): they now return the regexp
+	corresponding to the subscription that has been removed
+
+2005-04-28  Sebastien Bigaret  <sbigaret@users.sourceforge.net>
+
+	* ivy/ivy.py (IvyClient): variable 'regexps' can be accessed
+	concurrently, it is now protected by a specific lock
+
+	* ivy/ivy.py (IvyClient.remove_subscription): Added
+	(IvyServer.unbind_msg): Implemented
+
+2005-04-27  Sebastien Bigaret  <sbigaret@users.sourceforge.net>
+
+	* ivy/ivy.py (IvyClient._send): Added. All methods needing to send
+	informations to a remote agent through the socket are modified to
+	use this method instead of directly accessing self.socket.send().
+
+2005-04-22  Sebastien Bigaret  <sbigaret@users.sourceforge.net>
+
+	* ivy/ivy.py: Changed default logging level to INFO (was: DEBUG)
+	
+	* ivy/ivy.py (UDP_init_and_listen): added support for multicast
+	addresses. TTL set to 64 (arbitrary TTL value taken from
+	ivysocket.c:SocketAddMember())
+	
+	(is_multicast): added
+
+	* ivy/ivy.py (decode_ivybus): fixed: when the ip part in the
+	parameter ivybus was already made of 4 elements, the methods was
+	wrongly appending a '.' before returning it
+
+2005-04-21  Sebastien Bigaret  <sbigaret@users.sourceforge.net>
+
+	* ivy/ivy.py: documentation updated
+	(IvyServer.get_client): made private, renamed to _get_client
+	(IvyServer.external_ip): removed useless method (see below)
+	(IvyServer.__init__):
+	(UDP_init_and_listen): Changed: the UDP server and the TCPServer
+	now bound to INADDR_ANY and not to our IP, so that it behaves as the
+	C library.
+	
+2005-04-20  Sebastien Bigaret  <sbigaret@users.sourceforge.net>
+
+	* ivy/ivy.py (IvyServer): changed: _clients_lock is now a
+	_global_lock
+	(IvyServer._add_subscription): the generation of the unique id is now
+	protected by a critical section so that it is MT-safe.
+
+	* ivy/ivy.py (IvyServer.handle_msg): fixed: ignores when asked to
+	handle an unknown subscription/regexp id
+
