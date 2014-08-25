@@ -14,7 +14,8 @@ IVYAPPNAME = 'pyhello'
 
 
 def lprint(fmt, *arg):
-    print IVYAPPNAME + ': ' + fmt % arg
+    print(IVYAPPNAME + ': ')
+    print( fmt % arg)
 
 
 def usage(scmd):
@@ -25,7 +26,7 @@ def usage(scmd):
     \t-b IVYBUS | --ivybus=IVYBUS allow to provide the IVYBUS string in the form
     \t adresse:port eg. 127.255.255.255:2010
     '''
-    print fmt % lpathitem[-1]
+    print(fmt % lpathitem[-1])
 
 
 def oncxproc(agent, connected):

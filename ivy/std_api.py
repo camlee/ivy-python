@@ -21,9 +21,9 @@ Copyright (c) 2005-2011 Sebastien Bigaret <sbigaret@users.sourceforge.net>
 
 _IvyServer = None
 
-from ivy import void_function
-from ivy import IvyServer
-from ivy import IvyTimer
+from .ivy import void_function
+from .ivy import IvyServer
+from .ivy import IvyTimer
 
 
 def IvyInit(agent_name, ready_msg=None,

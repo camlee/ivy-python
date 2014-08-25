@@ -55,11 +55,15 @@ import random
 import re
 import socket
 import struct
+import sys
 import threading
 import time
 import traceback
 import types
-import SocketServer
+try:
+    import socketserver
+except ImportError:
+    import SocketServer as socketserver
 
 ivylogger = logging.getLogger('Ivy')
 
@@ -161,17 +165,21 @@ def UDP_init_and_listen(broadcast_addr, port, socket_server):
         s.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
         s.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, DEFAULT_TTL)
     # /Multicast
-
-    s.sendto('%li %s %s %s\n' % (PROTOCOL_VERSION,
-                                 socket_server.port,
-                                 socket_server.agent_id,
-                                 socket_server.agent_name),
-             (broadcast_addr, port))
+    
+    msg = \
+        '%li %s %s %s\n' % (PROTOCOL_VERSION,
+                 socket_server.port,
+                 socket_server.agent_id,
+                 socket_server.agent_name)
+    if sys.version > '3':
+        msg = bytes(msg, 'utf-8')
+    s.sendto(msg, (broadcast_addr, port))
 
     s.settimeout(0.1)
     while socket_server.isAlive():
         try:
-            udp_msg, (ip, ivybus_port) = s.recvfrom(1024)
+            udp_msg_, (ip, ivybus_port) = s.recvfrom(1024)
+            udp_msg = udp_msg_.decode()
         except socket.timeout:
             continue
 
@@ -622,11 +630,11 @@ class IvyClient:
         """
         try:
             self.socket.send(encode_message(msg_type, *params))
-        except (socket.timeout, socket.error), exc:
+        except (socket.timeout, socket.error) as exc:
             log('[ignored] Error on socket with %r: %s', self, exc)
 
 
-class IvyServer(SocketServer.ThreadingTCPServer):
+class IvyServer(socketserver.ThreadingTCPServer):
     """
     An Ivy server is responsible for receiving and handling the messages
     that other clients send on an Ivy bus to a given agent.
@@ -698,7 +706,7 @@ class IvyServer(SocketServer.ThreadingTCPServer):
         self._thread = None
 
         # the empty string is equivalent to INADDR_ANY
-        SocketServer.TCPServer.__init__(self, ('', 0), IvyHandler)
+        socketserver.TCPServer.__init__(self, ('', 0), IvyHandler)
         self.port = self.socket.getsockname()[1]
         #self.allow_reuse_address=True
 
@@ -1096,7 +1104,7 @@ class IvyServer(SocketServer.ThreadingTCPServer):
         return regexp
 
 
-class IvyHandler(SocketServer.StreamRequestHandler):
+class IvyHandler(socketserver.StreamRequestHandler):
     """
     An IvyHandler is associated to one IvyClient connected to our server.
 

@@ -19,8 +19,7 @@ IVYAPPNAME = 'pyivyprobe'
 
 
 def info(fmt, *arg):
-    print fmt % arg
-
+    print(fmt % arg)
 
 def usage(cmd):
     usage = '''Usage: %s [options] regexps
@@ -32,7 +31,7 @@ Options:
 \t-v, --verbose     verbose mode (twice makes it even more verbose)
 
 Type '.help' in ivyprobe for a list of available commands.'''
-    print usage % (os.path.basename(cmd), IVYAPPNAME)
+    print(usage % (os.path.basename(cmd), IVYAPPNAME))
 
 
 def on_connection_change(agent, event):
@@ -132,7 +131,10 @@ if __name__ == '__main__':
     info('Go ahead! (type .help for help on commands)')
     while 1:
         try:
-            msg = raw_input('')
+            if sys.version > '3':
+                msg = input('')
+            else:
+                msg = raw_input('')
         except (EOFError, KeyboardInterrupt):
             msg = '.quit'
 
@@ -161,7 +163,7 @@ appropriate applications on the bus.
         elif msg[:5] == '.bind':
             regexp = msg[6:]
             if not regexp:
-                print 'Error: missing argument'
+                print('Error: missing argument')
             info('Bound regexp, id: %d', IvyBindMsg(on_msg, regexp))
 
         elif msg == '.die-all-yes-i-am-sure':
@@ -192,7 +194,7 @@ appropriate applications on the bus.
                 if not arg:
                     raise ValueError
             except ValueError:
-                print 'Error: wrong number of parameters'
+                print('Error: wrong number of parameters')
                 continue
 
             app = IvyGetApplication(app_name)
@@ -209,7 +211,7 @@ appropriate applications on the bus.
                 if not err_msg:
                     raise ValueError
             except ValueError:
-                print 'Error: wrong number of parameters'
+                print('Error: wrong number of parameters')
                 continue
 
             app = IvyGetApplication(app_name)
@@ -263,7 +265,7 @@ appropriate applications on the bus.
             info('Application %s on %s:%s', app_name, app.ip, app.port)
 
         elif msg == '.who':
-            print IvyGetApplicationList()
+            print(IvyGetApplicationList())
 
         else:
             info('Sent to %s peers' % IvySendMsg(msg))
