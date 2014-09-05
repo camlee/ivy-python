@@ -1,3 +1,9 @@
+This is a friendly fork from http://svn.tls.cena.fr/svn/ivy/ivy-python.
+
+The main goal is to port to newer python version, and in particular to
+python3.x (see python3 branch).
+
+
 Ivy: a lightweight software bus
 -------------------------------
 
