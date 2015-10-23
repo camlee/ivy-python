@@ -35,7 +35,7 @@ Type '.help' in ivyprobe for a list of available commands.'''
 
 
 def on_connection_change(agent, event):
-    if event == ivy.IvyApplicationDisconnected:
+    if event == ivy.ivy.IvyApplicationDisconnected:
         info('Ivy application %r has disconnected', agent)
     else:
         info('Ivy application %r has connected', agent)

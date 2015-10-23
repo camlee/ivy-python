@@ -64,6 +64,10 @@ try:
     import socketserver
 except ImportError:
     import SocketServer as socketserver
+try:
+    string_types = basestring
+except NameError:
+    string_types = str
 
 ivylogger = logging.getLogger('Ivy')
 
@@ -313,7 +317,7 @@ def encode_message(msg_type, numerical_id, params=''):
     params is list -> concatenated, separated by ARG_END
     """
     msg = "%s %s" % (msg_type, numerical_id) + ARG_START
-    if isinstance(params, basestring):
+    if isinstance(params, string_types):
         msg += params
     else:
         msg += ARG_END.join(params)
@@ -584,7 +588,7 @@ class IvyClient:
         if isinstance(client, IvyClient):
             return self.ip == client.ip and self.port == client.port
 
-        if type(client) in (types.TupleType, types.ListType) and len(client) == 2:
+        if (isinstance(client, tuple) or isinstance(List)) and len(client) == 2:
             return self.ip == client[0] and self.port == client[1]
 
         return False
@@ -629,7 +633,7 @@ class IvyClient:
         
         """
         try:
-            self.socket.send(encode_message(msg_type, *params))
+            self.socket.send(encode_message(msg_type, *params).encode("utf-8"))
         except (socket.timeout, socket.error) as exc:
             log('[ignored] Error on socket with %r: %s', self, exc)
 
@@ -1124,25 +1128,24 @@ class IvyHandler(socketserver.StreamRequestHandler):
         # self.server is the IvyServer
 
         bufsize = 1024
-        socket = self.request
         ip = self.client_address[0]
         port = self.client_address[1]
 
-        trace('New IvyHandler for %s:%s, socket %r', ip, port, socket)
+        trace('New IvyHandler for %s:%s, socket %r', ip, port, self.request)
 
-        client = self.server._get_client(ip, port, socket)
+        client = self.server._get_client(ip, port, self.request)
         debug('Got a request from ip=%s port=%s', ip, port)
 
         # First, send our initial subscriptions
-        socket.send(encode_message(START_INIT, self.server.port,
-                                   self.server.agent_name))
+        self.request.send(encode_message(START_INIT, self.server.port,
+                                   self.server.agent_name).encode("utf-8"))
         for idx, subscr in self.server.get_subscriptions():
-            socket.send(encode_message(ADD_REGEXP, idx, subscr))
-        socket.send(encode_message(END_REGEXP, 0))
+            self.request.send(encode_message(ADD_REGEXP, idx, subscr).encode("utf-8"))
+        self.request.send(encode_message(END_REGEXP, 0).encode("utf-8"))
 
         while self.server.isAlive():
             try:
-                msgs = socket.recv(bufsize)
+                msgs = self.request.recv(bufsize).decode("utf-8")
             except socket.timeout:
                 debug('timeout on socket bound to client %r', client)
                 continue
@@ -1167,7 +1170,7 @@ class IvyHandler(socketserver.StreamRequestHandler):
                 # handling the request
                 while self.server.isAlive():
                     try:
-                        _msg = socket.recv(bufsize)
+                        _msg = self.request.recv(bufsize).decode("utf-8")
                         break
                     except socket.timeout:
                         continue
@@ -1179,7 +1182,7 @@ class IvyHandler(socketserver.StreamRequestHandler):
 
                     while self.server.isAlive():
                         try:
-                            _msg = socket.recv(bufsize)
+                            _msg = self.request.recv(bufsize).decode("utf-8")
                             break
                         except socket.timeout:
                             continue

@@ -151,4 +151,4 @@ Copyright (c) 2005-2011 Sebastien Bigaret <sbigaret@users.sourceforge.net>
 .. _The Ivy C library: http://www.tls.cena.fr/products/ivy/documentation/ivy-c.pdf
 .. _Ivy downloads page: http://www.tls.cena.fr/products/ivy/download/binaries.html
 """
-__version__ = '2.2'
+__version__ = '3.0'

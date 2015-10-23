@@ -1,3 +1,10 @@
+v3.0
+----
+
+* Works on Python 3 now (backwards compatible with Python 2)
+
+v2.2
+----
 
 * IvyServer.send_direct_message(): new parameter 'stop_on_first' added
 
@@ -5,9 +12,6 @@
   it up, to correct misspellings, and to make it more "Pythonic"
   (especially by following pep8 recommendations).
   Great job, thanks a lot Dan!
-
-v2.2
-----
 
 * It is now possible to stop and restart an IvyServer, without recreating it.
   This is particularly useful for the std_api, where IvyStart() can be called
