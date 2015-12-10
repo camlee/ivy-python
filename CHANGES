@@ -1,3 +1,11 @@
+v3.0.1
+------
+
+* Fixed incorrect "Asked to handle an unknown subscription..." warning and
+  supression of exception when user provided app_callback function raised a 
+  KeyError. Now, the callback's exception isn't hidden and no erroneous 
+  warning is logged.
+
 v3.0
 ----
 

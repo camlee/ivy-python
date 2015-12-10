@@ -1033,12 +1033,14 @@ class IvyServer(socketserver.ThreadingTCPServer):
         self._global_lock.acquire()
         try:
             try:
-                return self._get_fct_for_subscription(int(idx))(client, *params)
+                func = self._get_fct_for_subscription(int(idx))
             except KeyError:
                 # it is possible that we receive a message for a regexp that
                 # was subscribed then unregistered
                 warn('Asked to handle an unknown subscription: id:%r params: %r'
                      ' --ignoring', idx, params)
+            else:
+                return func(client, *params)
         finally:
             self._global_lock.release()
 
@@ -1079,6 +1081,8 @@ class IvyServer(socketserver.ThreadingTCPServer):
         :return: the binding's id, which can be used to unregister the binding
           with `unbind_msg()`
         """
+        if not isinstance(regexp, string_types):
+            raise ValueError("regexp must be a string. Got %s: %s" % (regexp.__class__.__name__, regexp))
         self._global_lock.acquire()
         idx = self._add_subscription(regexp, on_msg_fct)
         try:

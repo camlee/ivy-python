@@ -40,7 +40,7 @@ Ivy is a lightweight software bus for quick-prototyping protocols. It allows
 applications to broadcast information through text messages, with a
 subscription mechanism based on regular expressions.
 """
-__version__="3.0"
+__version__="3.0.1"
 
 from distutils.core import setup
 #from setuptools import setup
